@@ -1,8 +1,10 @@
 'use strict';
 
 class BinaryTree {
-	constructor() {
 
+	constructor() {
+        this.root = null;
+        this.size_ = 0;
 	}
 
 	insert(data) {
@@ -24,4 +26,9 @@ class BinaryTree {
 	isEmpty() {
 
 	}
+
+    clear() {
+        this.root = null;
+        this.size_ = 0;
+    }
 }
