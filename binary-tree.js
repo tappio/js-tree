@@ -7,14 +7,14 @@ class BinaryTree {
     }
 
     insert(data) {
-        if (this.root === null) {
+        if (!this.root) {
             this.root = new Node(data);
             return true;
         }
 
         var current = this.root;
         var parent;
-        while (current !== null) {
+        while (current) {
             parent = current;
             if (data > current.data) {
                 current = current.right;
@@ -35,16 +35,16 @@ class BinaryTree {
     }
 
     contains(data) {
-        return this.getNode(data) !== null;
+        return !!this.getNode(data);
     }
 
     remove(data) {
         var node = this.getNode(data);
-        if (node === null) {
-            return false;
+        if (node) {
+            this.deleteNode(node);
+            return true;
         }
-        this.deleteNode(node);
-        return true;
+        return false;
     }
 
     size() {
@@ -52,24 +52,19 @@ class BinaryTree {
     }
 
     nodeSize(node) {
-        if (node === null) {
+        if (!node)
             return 0;
-        }
         return this.nodeSize(node.left) + this.nodeSize(node.right) + 1;
     }
 
     isEmpty() {
-        return this.root === null;
-    }
-
-    clear() {
-        this.root = null;
+        return !this.root;
     }
 
     getNode(data) {
         var current = this.root;
         var parent = null;
-        while (current !== null) {
+        while (current) {
             if (data > current.data) {
                 parent = current;
                 current = current.right;
@@ -84,70 +79,35 @@ class BinaryTree {
         return null;
     }
 
-    findMinimum(node, parent) {
+    static findMinimum(node, parent) {
         var minNode = node;
-        var parent0 = parent;
-        if (minNode !== null) {
-            while (minNode.left !== null) {
-                parent0 = minNode;
-                minNode = minNode.left;
-            }
+        var currentParent = parent;
+        while (minNode.left) {
+            currentParent = minNode;
+            minNode = minNode.left;
         }
-        minNode.parent = parent0;
+        minNode.parent = currentParent;
         return minNode;
     }
 
-    // node must contain parent element
     deleteNode(node) {
         var parent = node.parent;
-        var data = node.data;
+        var replacerNode = node.left || node.right;
 
-        // no children
-        if (node.left === null && node.right === null) {
-            // no parent, node = root
-            if (parent === null) {
-                this.root = null;
+        if (!node.left || !node.right) {
+            if (!parent) {
+                this.root = replacerNode;
             } else {
-                if (parent.left.data === data) {
-                    parent.left = null;
+                if (parent.left.data === node.data) {
+                    parent.left = replacerNode;
                 } else {
-                    parent.right = null;
+                    parent.right = replacerNode;
                 }
             }
-            return true;
-        }
-
-        if (node.left === null) {
-            // 1 child, right
-            if (parent === null) {
-                this.root = node.right;
-            } else {
-                if (parent.left.data === data) {
-                    parent.left = node.right;
-                } else {
-                    parent.right = node.right;
-                }
-            }
-
-        } else if (node.right === null) {
-            // 1 child, left
-            if (parent === null) {
-                this.root = node.left;
-            } else {
-                if (parent.left.data === data) {
-                    parent.left = node.left;
-                } else {
-                    parent.right = node.left;
-                }
-            }
-
         } else {
-            var minNode = this.findMinimum(node.right, node);
+            var minNode = BinaryTree.findMinimum(node.right, node);
             node.data = minNode.data;
             this.deleteNode(minNode);
         }
-
-        return true;
     }
-
 }
