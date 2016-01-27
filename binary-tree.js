@@ -4,13 +4,11 @@ class BinaryTree {
 
     constructor() {
         this.root = null;
-        this.size_ = 0;
     }
 
     insert(data) {
         if (this.root === null) {
             this.root = new Node(data);
-            this.size_++;
             return true;
         }
 
@@ -33,7 +31,6 @@ class BinaryTree {
         } else {
             parent.left = node;
         }
-        this.size_++;
         return true;
     }
 
@@ -46,77 +43,27 @@ class BinaryTree {
         if (node === null) {
             return false;
         }
-        var parent = node.parent;
-
-        // no children
-        if (node.left === null && node.right === null) {
-            // no parent, node = root
-            if (parent === null) {
-                this.clear();
-                return true;
-
-            } else {
-                if (parent.left.data === data) {
-                    parent.left = null;
-                } else {
-                    parent.right = null;
-                }
-            }
-            this.size_--;
-            return true;
-        }
-
-        if (node.left === null) {
-            // 1 child, right
-            if (parent === null) {
-                this.root = node.right;
-
-            } else {
-                if (parent.left.data === data) {
-                    parent.left = node.right;
-                } else {
-                    parent.right = node.right;
-                }
-            }
-
-            this.size_--;
-            return true;
-
-        } else if (node.right === null) {
-            // 1 child, left
-            if (parent === null) {
-                this.root = node.left;
-
-            } else {
-                if (parent.left.data === data) {
-                    parent.left = node.left;
-                } else {
-                    parent.right = node.left;
-                }
-            }
-
-            this.size_--;
-            return true;
-
-        } else {
-            // 2 children
-        }
-
-
-        return false;
+        this.deleteNode(node);
+        return true;
     }
 
     size() {
-        return this.size_;
+        return this.nodeSize(this.root);
+    }
+
+    nodeSize(node) {
+        if (node === null) {
+            return 0;
+        }
+        return this.nodeSize(node.left) + this.nodeSize(node.right) + 1;
     }
 
     isEmpty() {
-        return this.size_ === 0;
+        return this.root === null;
     }
 
     clear() {
         this.root = null;
-        this.size_ = 0;
     }
 
     getNode(data) {
@@ -135,6 +82,72 @@ class BinaryTree {
             }
         }
         return null;
+    }
+
+    findMinimum(node, parent) {
+        var minNode = node;
+        var parent0 = parent;
+        if (minNode !== null) {
+            while (minNode.left !== null) {
+                parent0 = minNode;
+                minNode = minNode.left;
+            }
+        }
+        minNode.parent = parent0;
+        return minNode;
+    }
+
+    // node must contain parent element
+    deleteNode(node) {
+        var parent = node.parent;
+        var data = node.data;
+
+        // no children
+        if (node.left === null && node.right === null) {
+            // no parent, node = root
+            if (parent === null) {
+                this.root = null;
+            } else {
+                if (parent.left.data === data) {
+                    parent.left = null;
+                } else {
+                    parent.right = null;
+                }
+            }
+            return true;
+        }
+
+        if (node.left === null) {
+            // 1 child, right
+            if (parent === null) {
+                this.root = node.right;
+            } else {
+                if (parent.left.data === data) {
+                    parent.left = node.right;
+                } else {
+                    parent.right = node.right;
+                }
+            }
+
+        } else if (node.right === null) {
+            // 1 child, left
+            if (parent === null) {
+                this.root = node.left;
+            } else {
+                if (parent.left.data === data) {
+                    parent.left = node.left;
+                } else {
+                    parent.right = node.left;
+                }
+            }
+
+        } else {
+            var minNode = this.findMinimum(node.right, node);
+            node.data = minNode.data;
+            this.deleteNode(minNode);
+        }
+
+        return true;
     }
 
 }
